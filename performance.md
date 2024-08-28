@@ -1,14 +1,14 @@
-# Optimization
+# Performance Optimization
 
-## [Writing Faster Python 3](https://www.youtube.com/watch?v=5xArPgQMJls) [42 min, PyCon 2022, [code](https://github.com/switowski/writing-faster-python3)]
+## [Sebastian Witowski - Writing Faster Python 3](https://www.youtube.com/watch?v=5xArPgQMJls) [42 min, PyCon 2022, [code](https://github.com/switowski/writing-faster-python3)]
 
 - Ways to speed up Python - hardware, switch interpreter, **update Python version**, and writing better **algorithms and data structures**.
 - It is important to test out these improvements on your specific environment and code as their impact may vary.
 
 ### Source code improvements
 
-- Local variable
-- Built-in function (itertools, collections)
+- Use local variables where possible to reduce scope and increase access speed.
+- Use built-in functions and modules (such as itertools and collections) for optimized performance.
 - List comprehension instead of a loop
 - Generator expression for lower memory usage
 - **numpy** - dedicated library for scientific computing
@@ -63,7 +63,7 @@ total, elapsed_time
 
 ### Further improvements
 
-- Use formula to calculate the sum
+- Use mathematical formulas for direct computation where possible.
 
 ```py
 import time
@@ -85,6 +85,7 @@ int(total), elapsed_time * 1000
 ```
 
 ### More improvements with benchmarking
+
 Setup
 ```
 Python 3.10.4
@@ -108,16 +109,15 @@ Machine: 14-inch Macbook Pro (2021) with 16GB of RAM, M1 with 10 CPU cores and 1
 - Remove dupes - list comprehension, loop, set
   - List comprehensions are used to create lists, not for looping to create some side effect. In this case, loops are better as they show the intention of the code.
   
-## Python versions
+### Python versions
 
 - Generally, the newer versions are faster. Python 3.11 has a lot of speed improvements. See benchmarking near the end of the video.
 
+## [Alex Gaynor - Fast Python, Slow Python](https://www.youtube.com/watch?v=7eeEf_rAJds) [36 min, PyCon 2014]
 
-## [Fast Python, Slow Python](https://www.youtube.com/watch?v=7eeEf_rAJds) [36 min, PyCon 2014]
-
-- Performance is about specialization, which consideres the unique attributes of your program and environment.
+- Performance is about specialization, which considers the unique attributes of your program and environment.
 - Optimizing dynamic typed languages is different from optimizing static typed languages.
-- Slow vs Hard to optimize
+- Differentiating between whether an operation is inherently slow or that it is difficult to optimize.
 
 ```python
 # slower
@@ -138,15 +138,15 @@ if (
 - Classes are specialized, dictionaries are not.
 
 
-## [Memory Management in Python - The Basics](https://www.youtube.com/watch?v=URNdRl97q_0) [30 min, PyCon 2018]
+## [Nina Zakharenko - Memory Management in Python - The Basics](https://www.youtube.com/watch?v=URNdRl97q_0) [30 min, PyCon 2018]
 
-- Python has names, not variables. names -> references -> objects. Note: Some developers nonetheless consider Python's names as variables.
+- Python has names, not variables. Python variables are names that refer to objects via references. Note: Some developers nonetheless consider Python's names as variables.
 - What is a name? Label for an object.
 - What is a reference? A name or a container object that points to another object. The number of references to a particular object is called the **reference count**.
 - The difference between C and Python style variables is that while the former creates a copy of the object upon assignment, Python adds a reference to the original object.
 - How to increase or decrease reference count?
-  - What exactly does "del" do? It does not delete object. It removes the name as a reference to the object.
-- Why avoid putting large or complex objects in the global namespace?
+  - What exactly does "del" do? It removes the binding of a name to an object and does not directly affect the object unless it is the last reference to that object.
+- Avoid putting large or complex objects in the global namespace to prevent them from staying in memory longer than necessary.
 
 ```python
 def mem_test():
@@ -166,7 +166,7 @@ mem_test()
 - Weak references
 - Why do we need GIL? So that only one thread can change the reference count on an object at any given point in time.
 
-## [All Your Ducks In A Row: Data Structures in the Std Lib and Beyond](https://www.youtube.com/watch?v=fYlnfvKVDoM) [38 min, PyCon 2014]
+## [Brandon Rhodes - All Your Ducks In A Row: Data Structures in the Std Lib and Beyond](https://www.youtube.com/watch?v=fYlnfvKVDoM) [38 min, PyCon 2014]
 
 - How python data structures are stored in memory
 - What are intermediate objects and how they slow down math operations
@@ -178,11 +178,11 @@ mem_test()
 - Why an n slice result in n address copies, and how numpy circumvents this issue
 - How are classes implemented in Python
 
-## [Write faster Python! Common performance anti patterns](https://www.youtube.com/watch?v=YY7yJHo0M5I) [30 min, PyCon 2022]
+## [Anthony Shaw - Write faster Python! Common performance anti patterns](https://www.youtube.com/watch?v=YY7yJHo0M5I) [30 min, PyCon 2022]
 
-- Code change LOE vs impact of various paths to improve performance
-- Do's and don'ts opf micro-optimizaing code
+- Consider the level of effort vs value add of various refactoring options
+- Do's and don'ts of micro-optimizing code
 
-## [https://www.youtube.com/watch?v=66P5FMkWoVU](https://www.youtube.com/watch?v=66P5FMkWoVU) [47 min, PyCon 2017]
+## [Brandon Rhodes - The Dictionary Even Mightier](https://www.youtube.com/watch?v=66P5FMkWoVU) [47 min, PyCon 2017]
 
 The video provides a detailed history of Python dictionary implementations, highlighting key changes and improvements over time. Brandon Rhodes explains various optimizations and features introduced in different Python versions, focusing particularly on how dictionaries handle data storage and retrieval. One particularly interesting topic discussed is why Python dictionaries were initially orderless and how recent updates have changed this behavior to maintain insertion order, aligning with user expectations and enhancing the overall efficiency of dictionaries.
