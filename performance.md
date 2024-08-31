@@ -178,11 +178,36 @@ mem_test()
 - Why an n slice result in n address copies, and how numpy circumvents this issue
 - How are classes implemented in Python
 
-## [Anthony Shaw - Write faster Python! Common performance anti patterns](https://www.youtube.com/watch?v=YY7yJHo0M5I) [30 min, PyCon 2022]
+## [Anthony Shaw - Write faster Python! Common performance anti patterns](https://www.youtube.com/watch?v=YY7yJHo0M5I) [30 min, PyCon 2022] [Anthony's GitHub](https://github.com/tonybaloney/anti-patterns)
 
-- Consider the level of effort vs value add of various refactoring options
-- Do's and don'ts of micro-optimizing code
+- Performance profilers / benchmarking - austin, **scalene**, cprofile, pyinstrument, py-spy, yappi. 
+  - Note: While not talked about in the video, I found that Scalene was useful as a first pass, but it was not able to profile the code in the imported modules. The output from using --profile-all did not capture all of the functions that were called. I used line_profiler as a second profiler to analyze the module functions.
+- Common performance anti-patterns
+  - Loop invariant
+  - Missing list/dict/set comprehensions
+  - Inefficient data structures
+    - Example - which data container is faster? dataclass, named tuple, concrete class
+    - Comparison with PyPy for various data structures
+  - Too many tiny function calls
+- Sample correctly and track regressions
+- Catch issues in code-review to avoid performance regressions
+- Match statements
 
 ## [Brandon Rhodes - The Dictionary Even Mightier](https://www.youtube.com/watch?v=66P5FMkWoVU) [47 min, PyCon 2017]
 
 The video provides a detailed history of Python dictionary implementations, highlighting key changes and improvements over time. Brandon Rhodes explains various optimizations and features introduced in different Python versions, focusing particularly on how dictionaries handle data storage and retrieval. One particularly interesting topic discussed is why Python dictionaries were initially orderless and how recent updates have changed this behavior to maintain insertion order, aligning with user expectations and enhancing the overall efficiency of dictionaries.
+
+## [Kavya Joshi - The Memory Chronicles A Tale of Two Pythons](https://www.youtube.com/watch?v=d7qEzpnkWaY) [28 min, PyCon 2017]
+
+- Memory management differences between CPython and MicroPython.
+- Illustrates how the way objects are stored impacts their memory usage.
+- CPython:
+  - Garbage Collection: Combines reference counting with a cyclic garbage collector to manage memory and handle circular references.
+  - All objects, including integers and strings, have significant overhead, which increases overall memory usage.
+- MicroPython:
+  - Garbage Collection: Uses a simple mark-and-sweep garbage collector for all heap-allocated objects.
+  - Object Model: Utilizes pointer tagging and stores small integers directly, minimizing memory usage.
+
+## [Mike Müller - Faster Python Programs - Measure, don't Guess](https://www.youtube.com/watch?v=DGrS0uwMuHY) [3 hours 23 mins, PyCon 2018]
+
+- Optimization brings tradeoffs
