@@ -331,3 +331,29 @@ class Board:
     def copy(self):
         return copy.deepcopy(self)
 ```
+
+## [Oleksii Pilkevych - Things not to do in Python](https://www.youtube.com/watch?v=tqfTrCNkHW8) [15 min, code::dive 2018]
+
+- Python anti-patterns
+- Exceptions - more subtle ways to mess up using try, except, finally. Avoid using returns in finally block
+- Avoid setting global configs in modules (warnings, logging, basicConfig, setLevel, etc.)
+- [More examples on Alex's GitHub](https://github.com/alexpilk/python-sandbox/tree/master/what_not_to_do)
+
+## [Brandon Rhodes - Classic Design Patterns - Where Are They Now](https://www.youtube.com/watch?v=pGq7Cr2ekVM) [51 min, code:dive 2022]
+
+- Outdated design patterns
+- These patterns are rarely used but they illustrate the trend of going against the assumption that real-world objects map one-to-one with code objects
+  - bridge
+  - decorator
+  - mediator
+  - state
+- Smaller, stand-alone patterns in wide-spread use today
+  - builder
+  - adapter
+  - flyweight
+- Framework patterns
+  - composite
+  - chain of responsibility
+  - command
+  - interpreter
+- Facade
