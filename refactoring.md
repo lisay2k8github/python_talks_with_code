@@ -357,3 +357,286 @@ class Board:
   - command
   - interpreter
 - Facade
+
+## [Trey Hunner - Readability Counts](https://www.youtube.com/watch?v=knMg6G9_XCg&list=PLCC_B16W4O8nwQdn0UppflyP56TrrhaUo&index=13) [27 min, PyCon 2017] [Trey's style guide](http://trey.io/style-guide)
+
+Naming things
+
+- Indexes vs named tuples
+
+```py
+# before
+sc = {}
+for i in csv_data:
+    sc[i[0]] = i[1]
+```
+
+```py
+# after
+state_capitals = {}
+for s, c, *_ in capitals_csv_data:
+    state_capitals[s] = c
+```
+
+```py
+# going even further
+state_capitals = {}
+for state, capital, *_ in capitals_csv_data:
+    state_capitals[state] = capital
+```
+
+- Extracting functions
+
+```py
+# before
+def detect_anagrams(word, candidates):
+    anagrams = []
+    for candidate in candidates:
+        if (sorted(word.upper()) == sorted(candidate.upper())
+            and word.upper() != candidate.upper()):
+            anagrams.append(candidate)
+
+```
+
+```py
+# after
+def detect_anagrams(word, candidates):
+    anagrams = []
+    for candidate in candidates:
+        if is_anagram(word, candidate):
+            anagrams.append(candidate)
+
+def is_anagram(word1, word2):
+    word1, word2 = word1.upper(), word2.upper()
+    return sorted(word1) == sorted(word2) and word1 != word2
+```
+
+```py
+# added more names
+def detect_anagrams(word, candidates):
+    anagrams = []
+    for candidate in candidates:
+        if is_anagram(word, candidate):
+            anagrams.append(candidate)
+            
+def is_anagram(word1, word2):
+    word1, word2 = word1.upper(), word2.upper()
+    are_different_words = word1 != word2
+    have_same_letters = sorted(word1) == sorted(word2)
+    return have_same_letters and are_different_words
+```
+
+- Consider embedding comments into variable names so that the code itself is more readable
+
+```py
+# before
+def update_appointment_types(self):
+    """Delete/make appt. types and set default appt. type"""
+    
+    # Delete appointment types for specialty besides current one
+    self.appt_types.exclude(specialty=self.specialty).delete()
+    
+    # Create new appointment types based on specialty (if needed)
+    new_types = self.specialty.appt_types.exclude(agent=self)
+    self.appt_types.bulk_create(
+        AppointmentType(agent=self, appointment_type=type_)
+        for type_ in new_types
+    )
+    
+    # Set default appointment type based on specialty
+    old_default_id = self.default_appt_id
+    self.default_appt_type = self.specialty.default_appt_type
+    if self.default_appt_type.id != old_default_id:
+        self.save(update_fields=['default_appt_type'])
+
+```
+
+```py
+# after extarcting functions
+def update_appointment_types(self):
+    """Delete/make appt. types and set default appt. type"""
+    
+    self._delete_stale_appointment_types()
+    self._create_new_appointment_types()
+    self._update_default_appointment_type()
+```
+
+Special purpose constructs
+
+- Write your own context managers instead of using try...finally
+
+```py
+# before
+db = DBConnection("mydb")
+try:
+    records = db.query_all()
+finally:
+    db.close()
+```
+
+```py
+# after
+from contextlib import closing
+
+
+class connect:
+    def __init__(self, path):
+        self.connection = DBConnection(path)
+    
+    def __enter__(self):
+        return self.connection
+    
+    def __exit__(self):
+        self.close()
+
+
+with closing(DBConnection("mydb")) as db:
+    db.query_all()
+```
+
+- Use list comprehension instead of a for loop when applicable
+- Leverage built-in objects by using operator overloading
+
+Shared data
+
+- When to refactor into a class - when numerous functions share the same inputs
+
+## [Jack Diederich - HOWTO Write a Function](https://www.youtube.com/watch?v=rrBJVMyD-Gs) [41 min, PyCon 2018]
+
+Function structure
+
+- input
+- transform
+- output
+
+Helping the reader
+
+- group objects by when they are used
+
+```py
+def loopem(records):
+    results_lengths = []
+    results_count = 0
+
+    for record in records:
+        result_lengths.append(len(record))
+
+    for count in records_lengths:
+        results_count += count
+```
+
+```py
+# more clarity
+def loopem(records):
+    results_lengths = []
+    for record in records:
+        result_lengths.append(len(record))
+
+    results_count = 0
+    for count in records_lengths:
+        results_count += count
+```
+
+- define inputs where they are used
+- use custom exceptions sparringly, as they are typically defined far away from where they are used. Consider reusing existing errors.
+- code structure reflects usage pattern.
+  - what does the user care about?
+  - what would you care about as the developer?
+
+```py
+raw = get_from_api(id=3)
+user = deserialize_user(raw)
+```
+
+```py
+# if the user does not care about raw
+user = deserialize_user(get_from_api(id=3))
+```
+
+- return consistently
+
+```py
+def return_none_silently():
+    x = 3
+
+def return_none_quietly():
+    x = 3
+    return
+
+def return_none_exlicitly():
+    x = 3
+    return None
+```
+
+- return the same types or return the same types + none
+
+```py
+def calc_union(list_a, list_b):
+    if not list_a or not list_b:
+        return None
+    return list(set(list_a) | set(list_b))
+```
+
+- keep it together
+
+```py
+def config_exists(self):
+    return get_config()
+
+def has_owners(self):
+    return get_config()['owners']
+
+def validate(self):
+    if not self.config_exists():
+        return False
+    if not self.has_owners():
+        return False
+    return True
+```
+
+```py
+# group the funcs together if they will never be used separately
+def validate(self):
+    config = get_config()
+    if not config:
+        return False
+    if not config['owners']:
+        return False
+    return True
+```
+
+Things that don't help
+
+- using langauge features just because you learned about them
+- problem with linters
+
+## [Erik Rose - Constructive Code Review](https://www.youtube.com/watch?v=iNG1a--SIlk) [46 min, PyCon 2017]
+
+- Coding is creative, and creative work is powered by enthusiasm. Therefore, constructive code reviews are an important part of the process to building excellent products.
+
+How can we make code reviews more constructive?
+
+- Comment with clarity. Explain "why". Do not rely on other people ability to remember what you said a week ago.
+- Be language agnostic. Avoid using sarcasm or using language nuances as many people do not have English as their first language.
+- Not all comments have to block the merge.
+- Focus on the bigger picture, not the tiny details (unless they are important and would have an outsized impact on quality).
+- Have a style guide.
+- Provide quick turnarounds
+  - Focus on improvements rather than perfection.
+  - Comprehensiveness not required (personally, I think it depends on the nature of the patch being submitted.)
+  - Respect working memory.
+  - Quick "no"s.
+- Notice the signs of insecurity. No one should lose in a code review.
+
+Tact hacks - comments can come off as criticism to the other person, even if you did not mean it
+
+- Use **questions** istead of statements, especially if you are not 100% sure that your statement is current or applies to the specific situation.
+- Avoid pointing fingers inadvertantly by using "you" in a statement, because it could cause misunderstandings of intent.
+- Comments do not have to be limited to negative feedback.
+
+What if the pull request is too large? The reviewer can ask for...
+
+- A meeting to walkthrough the change.
+- A documentation of thought process and problem solving approach behind the change.
+- More detailed commit messages and smaller commits.
+- Comments, docstrings, naming
